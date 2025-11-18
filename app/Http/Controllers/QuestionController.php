@@ -32,10 +32,10 @@ class QuestionController extends Controller
         ]);
 
         DB::transaction(function () use ($quiz, $data) {
-            // Create question
+            // Create question - use type as-is from frontend
             $question = $quiz->questions()->create([
                 'prompt' => $data['prompt'],
-                'type' => $data['type'],
+                'type' => $data['type'], // 'multiple', 'true_false', or 'identification'
                 'points' => $data['points'],
                 'position' => $quiz->questions()->max('position') + 1,
             ]);
@@ -49,7 +49,7 @@ class QuestionController extends Controller
                 ]);
             }
 
-            // ✅ UPDATE QUIZ TOTAL POINTS
+            // Update quiz total points
             $this->updateQuizTotalPoints($quiz);
         });
 
@@ -69,9 +69,12 @@ class QuestionController extends Controller
         ]);
 
         DB::transaction(function () use ($question, $data) {
-            $question->update($data);
+            $question->update([
+                'prompt' => $data['prompt'],
+                'points' => $data['points'],
+            ]);
 
-            // ✅ UPDATE QUIZ TOTAL POINTS
+            // Update quiz total points
             $this->updateQuizTotalPoints($question->quiz);
         });
 
@@ -89,7 +92,7 @@ class QuestionController extends Controller
             $quiz = $question->quiz;
             $question->delete();
 
-            // ✅ UPDATE QUIZ TOTAL POINTS
+            // Update quiz total points
             $this->updateQuizTotalPoints($quiz);
         });
 
@@ -118,7 +121,7 @@ class QuestionController extends Controller
     }
 
     /**
-     * ✅ Helper method to recalculate and update quiz total_points
+     * Helper method to recalculate and update quiz total_points
      */
     protected function updateQuizTotalPoints(Quiz $quiz): void
     {

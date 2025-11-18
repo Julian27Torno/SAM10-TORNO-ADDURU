@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, Image as ImageIcon, Clock, FileText, Layout } from "lucide-react";
+import { ArrowRight, Image as ImageIcon, Clock, FileText, Layout, Sparkles, Upload, X, Eye, EyeOff, Lock, Globe, Link2 } from "lucide-react";
 
 type CreateForm = {
     title: string;
@@ -17,7 +17,6 @@ type CreateForm = {
 };
 
 export default function CreateQuiz() {
-    // Destructure 'transform' from useForm
     const { data, setData, post, processing, errors, transform } = useForm<CreateForm>({
         title: "",
         description: "",
@@ -44,65 +43,93 @@ export default function CreateQuiz() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
-        // FIX: Register the transformation logic BEFORE posting
         transform((data) => ({
             ...data,
-            // Convert Minutes (UI) to Seconds (DB)
             time_limit_seconds: data.time_limit ? Number(data.time_limit) * 60 : null,
-            // Remove fields that don't belong in the DB request
             time_limit: undefined, 
         }));
 
-        // Now call post (with forceFormData for file upload)
         post("/quizzes", {
             forceFormData: true,
         });
     };
 
+    const visibilityOptions = [
+        {
+            value: 'public',
+            icon: Globe,
+            label: 'Public',
+            description: 'Anyone can find and take',
+            gradient: 'from-blue-500 to-cyan-500'
+        },
+        {
+            value: 'unlisted',
+            icon: Link2,
+            label: 'Unlisted',
+            description: 'Only with direct link',
+            gradient: 'from-amber-500 to-orange-500'
+        },
+        {
+            value: 'private',
+            icon: Lock,
+            label: 'Private',
+            description: 'Only you can access',
+            gradient: 'from-slate-500 to-slate-600'
+        }
+    ];
+
     return (
         <AppLayout breadcrumbs={[{ title: "Dashboard", href: dashboardRoute().url }, { title: "Create Quiz", href: "/quizzes/create" }]}>
-            <Head title="Create Quiz" />
+            <Head title="Create Quiz • StudyBuddy" />
 
-            <div className="max-w-6xl mx-auto px-4">
+            <div className="max-w-5xl mx-auto px-4">
+                {/* Header with gradient */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">Create New Quiz</h1>
-                    <p className="text-muted-foreground mt-1">Step 1: Configure the basic details, timing, and visibility.</p>
+                    <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg">
+                            <Sparkles className="w-6 h-6" />
+                        </div>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Create New Quiz
+                        </h1>
+                    </div>
+                    <p className="text-muted-foreground ml-15">Design your quiz with custom settings and make learning fun!</p>
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    <Card className="border-slate-200 shadow-sm bg-white dark:bg-slate-950">
-                        <CardHeader className="pb-4">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 bg-sky-100 text-sky-600 rounded-lg dark:bg-sky-900 dark:text-sky-300">
+                    <Card className="border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+                        <CardHeader className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/30 dark:via-purple-950/30 dark:to-pink-950/30 pb-6 border-b-2">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-xl shadow-md">
                                     <Layout className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <CardTitle className="text-xl">Quiz Settings</CardTitle>
-                                    <CardDescription>Define how your quiz looks and behaves.</CardDescription>
+                                    <CardTitle className="text-2xl font-bold">Quiz Configuration</CardTitle>
+                                    <CardDescription className="text-base">Set up the basics for your learning experience</CardDescription>
                                 </div>
                             </div>
                         </CardHeader>
                         
-                        <Separator />
-                        
-                        <CardContent className="pt-8 space-y-8">
-                            <div className="grid gap-8 md:grid-cols-3">
-                                <div className="md:col-span-2 space-y-2">
-                                    <label className="text-sm font-semibold text-foreground">
+                        <CardContent className="pt-8 space-y-8 pb-8">
+                            {/* Title and Time Limit Row */}
+                            <div className="grid gap-6 md:grid-cols-3">
+                                <div className="md:col-span-2 space-y-3">
+                                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-blue-600" />
                                         Quiz Title <span className="text-red-500">*</span>
                                     </label>
                                     <Input 
                                         placeholder="e.g. Advanced Biology Midterm" 
                                         value={data.title} 
                                         onChange={e => setData('title', e.target.value)} 
-                                        className="h-12 text-lg"
+                                        className="h-14 text-base border-2 focus-visible:ring-blue-500 focus-visible:border-blue-500"
                                     />
-                                    {errors.title && <p className="text-xs text-red-500 font-medium">{errors.title}</p>}
+                                    {errors.title && <p className="text-sm text-red-500 font-medium flex items-center gap-1"><X className="w-4 h-4" />{errors.title}</p>}
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-                                        <Clock className="w-4 h-4 text-sky-600" />
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-purple-600" />
                                         Time Limit (Minutes)
                                     </label>
                                     <Input 
@@ -111,74 +138,146 @@ export default function CreateQuiz() {
                                         placeholder="No limit"
                                         value={data.time_limit} 
                                         onChange={e => setData('time_limit', e.target.value === '' ? '' : parseInt(e.target.value))} 
-                                        className="h-12"
+                                        className="h-14 text-base border-2 focus-visible:ring-purple-500 focus-visible:border-purple-500"
                                     />
-                                    <p className="text-[11px] text-muted-foreground">Leave empty for no timer.</p>
+                                    <p className="text-xs text-muted-foreground">Optional: Set a countdown timer</p>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-foreground">Description</label>
+                            {/* Description */}
+                            <div className="space-y-3">
+                                <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                    <FileText className="w-4 h-4 text-blue-600" />
+                                    Description
+                                </label>
                                 <textarea 
-                                    className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 min-h-[120px] resize-y"
-                                    placeholder="Give instructions or a brief overview..."
+                                    className="w-full rounded-xl border-2 border-input bg-background px-4 py-3 text-base shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:border-blue-500 min-h-[120px] resize-y transition-all"
+                                    placeholder="Provide context, instructions, or what students will learn..."
                                     value={data.description}
                                     onChange={e => setData('description', e.target.value)}
                                 />
                             </div>
 
-                            <div className="grid gap-8 md:grid-cols-2 pt-4">
-                                <div className="space-y-3">
-                                    <label className="text-sm font-semibold text-foreground">Visibility</label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['public', 'unlisted', 'private'].map((vis) => (
-                                            <div 
-                                                key={vis}
-                                                onClick={() => setData('visibility', vis as any)}
-                                                className={`cursor-pointer border-2 rounded-xl p-3 text-center capitalize text-sm font-medium transition-all ${
-                                                    data.visibility === vis 
-                                                    ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-sky-950 shadow-sm' 
-                                                    : 'border-transparent bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-muted-foreground'
-                                                }`}
-                                            >
-                                                {vis}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                            <Separator className="my-8" />
 
-                                <div className="space-y-3">
-                                    <label className="text-sm font-semibold text-foreground">Cover Page</label>
-                                    <div className="flex items-start gap-4 p-4 border border-dashed border-slate-300 rounded-xl bg-slate-50">
-                                        <div className="w-28 h-20 bg-white rounded-lg border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm relative group shrink-0">
-                                            {preview ? (
-                                                <img src={preview} className="w-full h-full object-cover" />
-                                            ) : (
-                                                <ImageIcon className="text-slate-300 w-8 h-8"/>
-                                            )}
+                            {/* Visibility Options - Redesigned */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                    <Eye className="w-4 h-4 text-blue-600" />
+                                    Visibility Settings
+                                </label>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {visibilityOptions.map((option) => {
+                                        const Icon = option.icon;
+                                        const isSelected = data.visibility === option.value;
+                                        
+                                        return (
+                                            <div 
+                                                key={option.value}
+                                                onClick={() => setData('visibility', option.value as any)}
+                                                className={`
+                                                    cursor-pointer rounded-xl p-5 transition-all duration-200 border-2
+                                                    ${isSelected 
+                                                        ? 'border-transparent shadow-lg scale-105 bg-gradient-to-br ' + option.gradient
+                                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md'
+                                                    }
+                                                `}
+                                            >
+                                                <div className="flex flex-col items-center text-center gap-3">
+                                                    <div className={`
+                                                        p-3 rounded-xl transition-colors
+                                                        ${isSelected 
+                                                            ? 'bg-white/20' 
+                                                            : 'bg-slate-100 dark:bg-slate-800'
+                                                        }
+                                                    `}>
+                                                        <Icon className={`w-6 h-6 ${isSelected ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`} />
+                                                    </div>
+                                                    <div>
+                                                        <p className={`font-bold text-base mb-1 ${isSelected ? 'text-white' : 'text-foreground'}`}>
+                                                            {option.label}
+                                                        </p>
+                                                        <p className={`text-xs ${isSelected ? 'text-white/90' : 'text-muted-foreground'}`}>
+                                                            {option.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <Separator className="my-8" />
+
+                            {/* Cover Image - Redesigned */}
+                            <div className="space-y-4">
+                                <label className="text-sm font-bold text-foreground flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 text-blue-600" />
+                                    Cover Image
+                                </label>
+                                
+                                <div className="relative">
+                                    {preview ? (
+                                        <div className="relative rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-lg group">
+                                            <img 
+                                                src={preview} 
+                                                className="w-full h-64 object-cover"
+                                                alt="Cover preview"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <Button 
+                                                type="button" 
+                                                variant="destructive" 
+                                                size="sm" 
+                                                onClick={removeImage}
+                                                className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+                                            >
+                                                <X className="w-4 h-4 mr-1" />
+                                                Remove
+                                            </Button>
                                         </div>
-                                        <div className="flex-1 space-y-2">
+                                    ) : (
+                                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 hover:from-blue-50 hover:to-purple-50 dark:hover:from-blue-950/20 dark:hover:to-purple-950/20 transition-all group">
+                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <div className="mb-4 p-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white group-hover:scale-110 transition-transform shadow-lg">
+                                                    <Upload className="w-8 h-8" />
+                                                </div>
+                                                <p className="mb-2 text-sm font-semibold text-foreground">
+                                                    Click to upload cover image
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    PNG, JPG or WEBP (MAX. 5MB)
+                                                </p>
+                                            </div>
                                             <Input 
                                                 type="file" 
                                                 accept="image/*" 
-                                                onChange={handleImageChange} 
-                                                className="cursor-pointer text-xs bg-white" 
+                                                onChange={handleImageChange}
+                                                className="hidden"
                                             />
-                                            {preview && (
-                                                <Button type="button" variant="destructive" size="sm" onClick={removeImage} className="h-7 text-xs px-3">
-                                                    Remove Image
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
+                                        </label>
+                                    )}
                                 </div>
                             </div>
                         </CardContent>
                         
-                        <div className="p-6 bg-slate-50 dark:bg-slate-900 rounded-b-xl flex justify-between items-center border-t">
-                            <span className="text-sm text-muted-foreground">Step 1 of 2</span>
-                            <Button type="submit" disabled={processing} size="lg" className="bg-sky-600 hover:bg-sky-700 text-white px-8">
-                                Save & Continue <ArrowRight className="w-4 h-4 ml-2"/>
+                        {/* Footer with gradient */}
+                        <div className="p-6 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex justify-between items-center border-t-2">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                                    1
+                                </div>
+                                <span className="text-sm font-medium text-muted-foreground">Step 1 of 2 - Basic Setup</span>
+                            </div>
+                            <Button 
+                                type="submit" 
+                                disabled={processing} 
+                                size="lg" 
+                                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 shadow-lg hover:shadow-xl transition-all font-semibold"
+                            >
+                                {processing ? 'Saving...' : 'Save & Continue'}
+                                <ArrowRight className="w-5 h-5 ml-2"/>
                             </Button>
                         </div>
                     </Card>

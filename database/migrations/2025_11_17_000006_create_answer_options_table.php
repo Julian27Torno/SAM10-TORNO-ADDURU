@@ -8,8 +8,8 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('answer_options', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('question_answer_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('option_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('question_answer_id')->constrained('quiz_attempt_answers')->cascadeOnDelete();
+            $table->foreignId('option_id')->constrained('options')->cascadeOnDelete();
             $table->timestamps();
 
             $table->unique(['question_answer_id', 'option_id']); // prevent duplicates

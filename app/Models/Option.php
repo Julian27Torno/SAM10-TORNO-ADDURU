@@ -10,7 +10,11 @@ class Option extends Model
     use HasFactory;
 
     protected $fillable = [
-        'question_id','text','is_correct','position','explanation',
+        'question_id',
+        'text',
+        'is_correct',
+        'position',
+        'explanation',
     ];
 
     protected $casts = [
@@ -18,12 +22,22 @@ class Option extends Model
         'position' => 'integer',
     ];
 
-    public function question() {
-        return $this->belongsTo(Question::class);
+    // Add accessor to map to frontend expectations
+    protected $appends = ['option_text'];
+
+    /**
+     * Accessor: map 'text' to 'option_text' for frontend
+     */
+    public function getOptionTextAttribute()
+    {
+        return $this->text;
     }
 
-    public function chosenInAnswers() {
-        return $this->belongsToMany(QuestionAnswer::class, 'answer_options')
-            ->withTimestamps();
+    /**
+     * Get the question this option belongs to
+     */
+    public function question()
+    {
+        return $this->belongsTo(Question::class);
     }
 }

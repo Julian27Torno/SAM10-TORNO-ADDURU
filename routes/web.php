@@ -7,6 +7,7 @@ use App\Http\Controllers\QuizController;
 use App\Http\Controllers\OptionController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizAttemptController;
+use App\Http\Controllers\QuizAttemptsController;
 use App\Http\Controllers\QuestionAnswerController;
 use App\Http\Controllers\DashboardController; // 👈 ADD THIS
 
@@ -110,36 +111,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // -------------------------------------------------------------------------
 
     // List Past Attempts
-    Route::get('/quizzes/{quiz}/attempts', [QuizAttemptController::class, 'index'])
+    Route::get('/quizzes/{quiz}/attempts', [QuizAttemptsController::class, 'index'])
         ->name('quizzes.attempts.index');
-
-    // Start New Attempt
-    Route::post('/quizzes/{quiz}/attempts', [QuizAttemptController::class, 'store'])
-        ->name('quizzes.attempts.store');
-
-    // Take / Resume Attempt Interface
-    Route::get('/attempts/{attempt}', [QuizAttemptController::class, 'take'])
-        ->name('attempts.take');
-
-    // Submit/Update Answer for a Question
-    Route::post('/attempts/{attempt}/answers', [QuestionAnswerController::class, 'storeOrUpdate'])
-        ->name('attempts.answers.store');
     
-    // Clear Answer
-    Route::delete('/attempts/{attempt}/answers/{question}', [QuestionAnswerController::class, 'destroy'])
-        ->name('attempts.answers.destroy');
-
-    // Finalize Attempt (Submit for grading)
-    Route::post('/attempts/{attempt}/finalize', [QuestionAnswerController::class, 'finalize'])
-        ->name('attempts.finalize');
+    // Start a new quiz attempt
+    Route::get('/quizzes/{quiz}/attempt/start', [QuizAttemptsController::class, 'start'])
+        ->name('quizzes.attempts.start');
     
-    // Abandon Attempt
-    Route::patch('/attempts/{attempt}/abandon', [QuizAttemptController::class, 'abandon'])
-        ->name('attempts.abandon');
+    // Continue an existing attempt
+    Route::get('/quizzes/{quiz}/attempt/{attempt}/continue', [QuizAttemptsController::class, 'continue'])
+        ->name('quizzes.attempts.continue');
     
-    // Delete Attempt History
-    Route::delete('/attempts/{attempt}', [QuizAttemptController::class, 'destroy'])
-        ->name('attempts.destroy');
+    // Take the quiz (main quiz interface)
+    Route::get('/quizzes/{quiz}/attempt/{attempt}', [QuizAttemptsController::class, 'take'])
+        ->name('quizzes.attempts.take');
+    
+    // Submit an answer
+    Route::post('/quizzes/{quiz}/attempt/{attempt}/answer', [QuizAttemptsController::class, 'submitAnswer'])
+        ->name('quizzes.attempts.answer');
+    
+    // Submit entire quiz
+    Route::post('/quizzes/{quiz}/attempt/{attempt}/submit', [QuizAttemptsController::class, 'submit'])
+        ->name('quizzes.attempts.submit');
+    
+    // View results
+    Route::get('/quizzes/{quiz}/attempt/{attempt}/results', [QuizAttemptsController::class, 'results'])
+        ->name('quizzes.attempts.results');
 
 });
 
