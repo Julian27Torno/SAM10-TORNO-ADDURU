@@ -22,6 +22,7 @@ class QuizController extends Controller
         $quizzes = Quiz::query()
             ->with('author:id,name')
             ->whereIn('visibility', ['public', 'unlisted'])
+
             ->when($search, fn($q) =>
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
@@ -39,18 +40,19 @@ class QuizController extends Controller
     }
 
     /** PUBLIC: show a quiz */
-    public function show(Quiz $quiz)
-    {
-        if ($quiz->visibility === 'private') {
-            abort(403);
-        }
-
-        $quiz->load(['author:id,name', 'questions.options']);
-
-        return Inertia::render('Quizzes/Show', [
-            'quiz' => $quiz,
-        ]);
+   public function show(Quiz $quiz)
+{
+    if ($quiz->visibility === 'private') {
+        abort(403);
     }
+
+    $quiz->load(['author:id,name', 'questions.options'])
+         ->loadCount('questions'); // Add this line
+
+    return Inertia::render('Quizzes/Show', [
+        'quiz' => $quiz,
+    ]);
+}
 
     /** AUTH: my quizzes */
  public function mine(Request $request)

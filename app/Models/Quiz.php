@@ -72,4 +72,10 @@ class Quiz extends Model
     public function scopePublic($query) {
         return $query->where('visibility', 'public');
     }
+
+
+      public function getQuestionsCountAttribute()
+    {
+        return $this->questions()->count(); // Return the number of related questions
+    }
 }
